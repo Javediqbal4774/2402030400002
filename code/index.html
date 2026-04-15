@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CookBook Pro | Digital Culinary Portfolio</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--white);
+            padding: 1.2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .navbar-brand span { color: var(--accent); }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #fff 0%, #f9f9f9 100%);
+            padding: 80px 0;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 50px;
+        }
+
+        .search-container {
+            max-width: 700px;
+            margin: -35px auto 0;
+            position: relative;
+            z-index: 100;
+        }
+
+        .search-bar {
+            border: none;
+            border-radius: 50px;
+            padding: 20px 35px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            font-size: 1.1rem;
+        }
+
+        /* Recipe Grid */
+        .recipe-card {
+            background: var(--white);
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+
+        .img-container {
+            height: 240px;
+            overflow: hidden;
+            background-color: #ddd;
+        }
+
+        .recipe-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .recipe-card:hover .recipe-img {
+            transform: scale(1.1);
+        }
+
+        .category-tag {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Detail View */
+        #detail-view {
+            display: none;
+            background: var(--white);
+            border-radius: 30px;
+            padding: 50px;
+            margin: 40px auto;
+            box-shadow: var(--shadow);
+        }
+
+        .step-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid var(--accent);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .ingredient-list li {
+            list-style: none;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f1f1;
+            display: flex;
+            align-items: center;
+        }
+
+        .ingredient-list li::before {
+            content: "\f00c";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: #27ae60;
+            margin-right: 15px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--light);
+            padding: 60px 0;
+            margin-top: 100px;
+        }
+
+        #add-recipe-view { display: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showPage('home')">
+                <i class="fas fa-hat-chef text-danger"></i> COOK<span>BOOK</span>
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <a href="#" class="nav-link me-4 d-none d-md-block" onclick="showPage('home')">Explore Recipes</a>
+                <button class="btn btn-danger rounded-pill px-4 shadow-sm" onclick="showPage('add')">
+                    <i class="fas fa-plus me-2"></i> Submit Recipe
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid p-0">
+        
+        <div id="home-view">
+            <section class="hero-section">
+                <div class="container">
+                    <h1 class="display-3 mb-3">Chef <span class="text-danger">WT's COOkbooK</span> Kitchen</h1>
+                    <p class="lead text-muted">A curated collection of 20 authentic world cuisines and secret family recipes.</p>
+                </div>
+            </section>
+
+            <div class="container">
+                <div class="search-container mb-5">
+                    <input type="text" id="recipeSearch" class="form-control search-bar" 
+                           placeholder="Search by ingredient, cuisine, or dish name..." onkeyup="searchHandler()">
+                </div>
+                
+                <div class="row g-5" id="recipe-gallery">
+                    </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="detail-view">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <button class="btn btn-outline-secondary rounded-pill px-4" onclick="showPage('home')">
+                        <i class="fas fa-chevron-left me-2"></i> Back to Gallery
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light rounded-circle"><i class="fas fa-heart text-danger"></i></button>
+                        <button class="btn btn-light rounded-circle"><i class="fas fa-share"></i></button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <img id="view-img" src="" class="img-fluid rounded-4 shadow-lg w-100" style="max-height: 500px; object-fit: cover;">
+                        
+                        <div class="mt-5 p-4 bg-light rounded-4">
+                            <h4 class="mb-4">Ingredients Checklist</h4>
+                            <ul id="view-ingredients" class="ingredient-list ps-0"></ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="ps-lg-4">
+                            <span id="view-category" class="category-tag"></span>
+                            <h1 id="view-title" class="display-4 my-3"></h1>
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 fw-bold">Chef Javed Iqbal</p>
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i> Cooking Time: <span id="view-time"></span></small>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h4 class="mb-4"><i class="fas fa-list-ol text-danger me-2"></i> Preparation Steps</h4>
+                            <div id="view-steps"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="add-recipe-view">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-7">
+                        <div class="card border-0 shadow-lg rounded-4 p-5">
+                            <h2 class="text-center mb-4">Submit Your Recipe</h2>
+                            <form id="submitForm">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Dish Name</label>
+                                    <input type="text" class="form-control p-3" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Category</label>
+                                        <select class="form-select p-3">
+                                            <option>Main Course</option>
+                                            <option>Dessert</option>
+                                            <option>Breakfast</option>
+                                            <option>Italian</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Preparation Time</label>
+                                        <input type="text" class="form-control p-3" placeholder="e.g. 45 mins">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Instructions</label>
+                                    <textarea class="form-control p-3" rows="6" placeholder="Describe each step clearly..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100 py-3 rounded-pill fw-bold shadow">
+                                    Upload Recipe to Gallery
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <h2 class="mb-4">COOKBOOK</h2>
+            <p class="mb-5 text-muted">Celebrating global flavors, curated by Javed Iqbal.</p>
+            <div class="d-flex justify-content-center gap-4 mb-5">
+                <i class="fab fa-instagram fa-2x"></i>
+                <i class="fab fa-facebook fa-2x"></i>
+                <i class="fab fa-youtube fa-2x"></i>
+            </div>
+            <p class="small text-secondary">© 2026 Web Technology Lab Project. All images from Unsplash.</p>
+        </div>
+    </footer>
+
+    <script>
+        const recipeData = [
+            {
+                id: 1,
+                title: "Traditional Mutton Biryani",
+                author: "Javed Iqbal",
+                time: "120 mins",
+                category: "Main Course",
+                image: "https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["1kg Premium Mutton", "500g Aged Basmati Rice", "200g Fresh Yogurt", "3 Large Sliced Onions", "Saffron soaked in warm milk", "Ginger-Garlic Paste", "Ghee (Clarified Butter)", "Whole Spices (Cardamom, Cinnamon, Bay Leaves)", "Fresh Mint & Coriander"],
+                steps: [
+                    "Marinate the mutton with yogurt, ginger-garlic paste, red chili powder, turmeric, and salt. Allow it to sit for at least 4 hours.",
+                    "Wash the Basmati rice three times and soak for 30 minutes to ensure long grains.",
+                    "Heat ghee in a heavy-bottomed pot and fry sliced onions until they reach a deep golden brown 'Barista' state.",
+                    "In a large pot, boil water with whole spices and salt. Cook rice until it is 70% done (the grain should have a bite).",
+                    "Cook the marinated mutton in a pressure cooker or pot until tender but holding its shape.",
+                    "Begin layering: Start with a layer of cooked mutton at the bottom, followed by a layer of parboiled rice.",
+                    "Sprinkle fried onions, fresh mint, and chopped coriander between the layers.",
+                    "Pour saffron milk over the final rice layer and add 2 tablespoons of ghee.",
+                    "Seal the pot with dough or a tight lid and cook on the lowest heat (Dum) for 25 minutes.",
+                    "Let it rest for 10 minutes before opening. Fluff the rice gently and serve with cold raita."
+                ]
+            },
+            {
+                id: 2,
+                title: "Paneer Butter Masala",
+                author: "Javed Iqbal",
+                time: "45 mins",
+                category: "Vegetarian",
+                image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["300g Paneer cubes", "3 Large Tomatoes", "2 Medium Onions", "50g Salted Butter", "100ml Fresh Cream", "Cashew Paste", "Kasuri Methi (Dried Fenugreek)"],
+                steps: [
+                    "Boil onions and cashews together for 10 minutes, then grind into a fine white paste.",
+                    "Puree the fresh tomatoes separately until smooth.",
+                    "Heat butter in a pan and sauté the onion-cashew paste until it leaves the sides of the pan.",
+                    "Add tomato puree, ginger-garlic paste, Kashmiri red chili powder, and turmeric. Cook on medium heat.",
+                    "Wait until oil/butter starts to separate from the masala (the 'bhuna' stage).",
+                    "Add 1 cup of warm water and salt. Bring the gravy to a gentle simmer.",
+                    "Gently slide in the paneer cubes. Do not overcook as they may become rubbery.",
+                    "Pour in fresh cream and stir slowly to achieve a rich orange velvet texture.",
+                    "Crush Kasuri Methi between your palms and sprinkle over the curry for aroma.",
+                    "Finish with a small dollop of butter and serve with garlic naan or tandoori roti."
+                ]
+            },
+            {
+                id: 3,
+                title: "Margherita Pizza Napoletana",
+                author: "Javed Iqbal",
+                time: "60 mins",
+                category: "Italian",
+                image: "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["00 Flour (500g)", "San Marzano Tomato Sauce", "Fresh Mozzarella di Bufala", "Fresh Basil Leaves", "Extra Virgin Olive Oil", "Sea Salt", "Active Dry Yeast"],
+                steps: [
+                    "Mix flour, water, yeast, and salt. Knead for 10 minutes until the dough is elastic and smooth.",
+                    "Let the dough rise in a warm spot for 2 hours until it doubles in size.",
+                    "Preheat your oven to its highest setting (preferably with a pizza stone inside).",
+                    "Punch down the dough and divide into smaller balls. Rest for another 30 minutes.",
+                    "Stretch the dough by hand—never use a rolling pin to keep the air in the crust.",
+                    "Spread a thin layer of San Marzano tomato sauce, leaving 1 inch for the 'Cornicione' (crust).",
+                    "Tear fresh mozzarella pieces and distribute evenly over the sauce.",
+                    "Place 4-5 fresh basil leaves on top and drizzle with high-quality olive oil.",
+                    "Bake for 7-10 minutes until the crust is charred (leopard spots) and cheese is bubbly.",
+                    "Slice immediately and serve while the cheese is still molten."
+                ]
+            },
+            {
+                id: 4,
+                title: "Fresh Salmon Steak",
+                author: "Javed Iqbal",
+                time: "25 mins",
+                category: "Seafood",
+                image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["2 Fresh Salmon Fillets", "Lemon Zest & Juice", "Asparagus spears", "Garlic Butter", "Black Pepper", "Rosemary Sprigs"],
+                steps: [
+                    "Pat the salmon fillets completely dry with paper towels to ensure a crispy skin.",
+                    "Season the flesh side with sea salt, cracked black pepper, and lemon zest.",
+                    "Heat a cast-iron skillet over medium-high heat with a high-smoke-point oil.",
+                    "Place salmon skin-side down. Press firmly for 30 seconds to prevent curling.",
+                    "Sear for 5-6 minutes without moving it until the skin is golden and crispy.",
+                    "Flip the salmon and add a large knob of butter, crushed garlic, and rosemary to the pan.",
+                    "Tilt the pan and spoon the foaming garlic butter over the salmon for 2 minutes (basting).",
+                    "Sauté asparagus in the same pan for the last 3 minutes of cooking.",
+                    "Check for an internal temperature of 145°F for a perfect medium cook.",
+                    "Serve with a fresh squeeze of lemon juice and a side of mashed potatoes."
+                ]
+            },
+            {
+                id: 5,
+                title: "Traditional Japanese Ramen",
+                author: "Javed Iqbal",
+                time: "180 mins",
+                category: "Asian",
+                image: "https://images.unsplash.com/photo-1591814448473-7057b999af58?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Ramen Noodles", "Pork or Chicken Bone Broth", "Miso Paste", "Soft Boiled Marinated Egg", "Nori Sheets", "Spring Onions", "Bamboo Shoots"],
+                steps: [
+                    "Simmer bones with ginger and garlic for 4-6 hours to create a rich, milky white broth.",
+                    "Prepare the 'Tare' by mixing miso paste, soy sauce, and mirin in a small bowl.",
+                    "Boil eggs for exactly 6 minutes and 30 seconds, then shock in ice water.",
+                    "Marinate the peeled eggs in a soy-mirin mixture for at least 2 hours.",
+                    "Cook fresh ramen noodles in boiling water; drain and set aside.",
+                    "Place 2 tablespoons of Tare at the bottom of each serving bowl.",
+                    "Pour the piping hot bone broth over the Tare and whisk to combine.",
+                    "Add the noodles carefully, folding them so they sit neatly in the liquid.",
+                    "Top with sliced Chashu (pork), the marinated egg (cut in half), and nori.",
+                    "Garnish with finely sliced green onions and a drizzle of aromatic chili oil."
+                ]
+            },
+            {
+                id: 6,
+                title: "Classic Beef Burger",
+                author: "Javed Iqbal",
+                time: "30 mins",
+                category: "Main Course",
+                image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["80/20 Ground Beef", "Brioche Buns", "Cheddar Cheese", "Iceberg Lettuce", "Tomato Slices", "Pickles", "Special Sauce"],
+                steps: [
+                    "Form the ground beef into 200g patties. Do not overwork the meat.",
+                    "Make a small indentation in the center of the patty to prevent bulging during cooking.",
+                    "Season both sides generously with salt and pepper right before hitting the pan.",
+                    "Sear on a high-heat griddle for 4 minutes on the first side to develop a crust.",
+                    "Flip the patty and immediately place a slice of cheddar cheese on top.",
+                    "Cover the pan for 1 minute to allow the cheese to melt perfectly over the beef.",
+                    "Toast the brioche buns with butter until golden brown and crispy.",
+                    "Spread special sauce (mayo, ketchup, mustard mix) on both buns.",
+                    "Layer lettuce, tomato, and pickles on the bottom bun to protect the bread from juices.",
+                    "Place the cheesy patty on top, close the burger, and serve with hot fries."
+                ]
+            },
+            {
+                id: 7,
+                title: "Hyderabadi Chicken Curries",
+                author: "Javed Iqbal",
+                time: "55 mins",
+                category: "Main Course",
+                image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Chicken 500g", "Curry Leaves", "Green Chilies", "Poppy Seeds", "Coconut Milk", "Garam Masala"],
+                steps: [
+                    "Marinate chicken with salt, turmeric, and ginger-garlic paste for 30 minutes.",
+                    "Heat oil and temper with mustard seeds and fresh curry leaves until they crackle.",
+                    "Sauté chopped onions and slit green chilies until the onions turn translucent.",
+                    "Add the marinated chicken and fry on high heat for 5 minutes to sear the juices.",
+                    "Stir in a paste made from poppy seeds and desiccated coconut.",
+                    "Add water as needed and cover the lid. Cook on medium heat until chicken is tender.",
+                    "Pour in thick coconut milk at the end to create a rich, creamy base.",
+                    "Sprinkle freshly ground garam masala and chopped coriander.",
+                    "Simmer for another 2 minutes on low heat—do not let the coconut milk boil hard.",
+                    "Serve with steamed rice or Kerala Parotta."
+                ]
+            },
+            {
+                id: 8,
+                title: "Vegetarian Sushi Rolls",
+                author: "Javed Iqbal",
+                time: "50 mins",
+                category: "Asian",
+                image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Sushi Rice", "Nori Sheets", "Cucumber", "Avocado", "Pickled Radish", "Rice Vinegar", "Wasabi & Soy Sauce"],
+                steps: [
+                    "Cook sushi rice and season with a mixture of rice vinegar, sugar, and salt.",
+                    "Fan the rice while mixing to give it a glossy, professional finish.",
+                    "Place a nori sheet on a bamboo rolling mat (Makisu).",
+                    "Spread a thin, even layer of rice over the nori, leaving 1 inch at the top.",
+                    "Place long strips of cucumber, avocado, and radish in the center.",
+                    "Lift the edge of the mat and roll over the filling, tucking it in tightly.",
+                    "Apply gentle pressure to shape the roll into a cylinder.",
+                    "Moisten the top edge of the nori with water to seal the roll.",
+                    "Use a very sharp, wet knife to slice the roll into 6-8 equal pieces.",
+                    "Serve with a side of pickled ginger, wasabi, and high-quality soy sauce."
+                ]
+            },
+            {
+                id: 9,
+                title: "French Onion Soup",
+                author: "Javed Iqbal",
+                time: "75 mins",
+                category: "Main Course",
+                image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["6 Large Yellow Onions", "Beef Stock", "French Baguette", "Gruyère Cheese", "Thyme", "Butter"],
+                steps: [
+                    "Thinly slice onions and melt butter in a heavy pot over medium-low heat.",
+                    "Slowly caramelize the onions for at least 45 minutes until deep brown and sweet.",
+                    "Deglaze the pot with a splash of wine or stock, scraping up all the brown bits.",
+                    "Add beef stock, fresh thyme sprigs, and a bay leaf. Simmer for 20 minutes.",
+                    "Discard the herbs and season the soup with salt and black pepper.",
+                    "Slice the baguette into thick rounds and toast until very crunchy.",
+                    "Ladle the hot soup into oven-safe bowls.",
+                    "Place a toasted bread slice on top of the liquid in each bowl.",
+                    "Pile a generous amount of grated Gruyère cheese over the bread.",
+                    "Broil in the oven for 3-5 minutes until the cheese is melted and browned."
+                ]
+            },
+            {
+                id: 10,
+                title: "Crispy Fish & Chips",
+                author: "Javed Iqbal",
+                time: "40 mins",
+                category: "Seafood",
+                image: "https://images.unsplash.com/photo-1579208575657-c595a05383b7?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Cod or Haddock Fillets", "Cold Beer", "Flour", "Baking Powder", "Large Potatoes", "Tartar Sauce"],
+                steps: [
+                    "Peel and cut potatoes into thick chips. Soak in cold water to remove starch.",
+                    "Par-boil the chips for 5 minutes, then dry thoroughly before frying.",
+                    "Whisk flour, baking powder, and salt. Pour in ice-cold beer gradually.",
+                    "Whisk the batter until it is the consistency of thick cream. Keep it cold.",
+                    "Dredge the fish fillets in dry flour first, then dip into the beer batter.",
+                    "Deep fry the fish in 350°F oil until the batter is golden and extremely crisp.",
+                    "Double-fry the chips at 375°F until they are crunchy on the outside and fluffy inside.",
+                    "Drain everything on a wire rack—never paper towels, to prevent sogginess.",
+                    "Season immediately with sea salt and a splash of malt vinegar.",
+                    "Serve with a side of mushy peas and creamy tartar sauce."
+                ]
+            },
+            {
+                id: 11,
+                title: "Dark Chocolate Lava Cake",
+                author: "Javed Iqbal",
+                time: "20 mins",
+                category: "Dessert",
+                image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Dark Chocolate 70%", "Butter", "Eggs", "Sugar", "Cocoa Powder", "Flour"],
+                steps: [
+                    "Preheat oven to 200°C. Grease ramekins with butter and dust with cocoa powder.",
+                    "Melt chocolate and butter together in a glass bowl over simmering water.",
+                    "Whisk eggs and sugar in a separate bowl until pale and thick.",
+                    "Gently fold the melted chocolate into the egg mixture.",
+                    "Sift in the flour and fold again until just combined—do not overmix.",
+                    "Divide the batter equally among the prepared ramekins.",
+                    "Bake for exactly 12-14 minutes. The edges should be set, but the center soft.",
+                    "Let them rest for 2 minutes before carefully inverting onto a plate.",
+                    "The cake should release easily, revealing a firm exterior.",
+                    "Dust with powdered sugar and serve with a scoop of vanilla bean ice cream."
+                ]
+            },
+            {
+                id: 12,
+                title: "Tandoori Roasted Chicken",
+                author: "Javed Iqbal",
+                time: "90 mins",
+                category: "Main Course",
+                image: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Whole Chicken cuts", "Greek Yogurt", "Tandoori Masala", "Lemon", "Mustard Oil", "Red Food Color (optional)"],
+                steps: [
+                    "Make deep incisions in the chicken pieces to allow the marinade to penetrate.",
+                    "Rub lemon juice and salt into the chicken and rest for 15 minutes.",
+                    "Mix yogurt, mustard oil, and tandoori spices to create a thick paste.",
+                    "Coat the chicken thoroughly in the marinade, ensuring it enters the slits.",
+                    "Refrigerate for at least 6 hours (preferably overnight) for best results.",
+                    "Preheat your oven to its highest temperature or use a charcoal grill.",
+                    "Place chicken on a wire rack and roast for 25-30 minutes.",
+                    "Baste with melted butter halfway through to keep the meat juicy.",
+                    "Turn on the broiler for the last 5 minutes to get those signature charred spots.",
+                    "Serve with onion rings, mint chutney, and fresh lemon wedges."
+                ]
+            },
+            {
+                id: 13,
+                title: "Greek Salad (Horiatiki)",
+                author: "Javed Iqbal",
+                time: "15 mins",
+                category: "Healthy",
+                image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Feta Cheese block", "Cucumber", "Vine Tomatoes", "Kalamata Olives", "Red Onion", "Dried Oregano", "Olive Oil"],
+                steps: [
+                    "Chop tomatoes and cucumbers into large, rustic chunks (not small cubes).",
+                    "Thinly slice the red onion into half-moons and soak in cold water to reduce bite.",
+                    "Combine tomatoes, cucumber, and onions in a wide shallow bowl.",
+                    "Add a handful of whole Kalamata olives (with pits for authenticity).",
+                    "Place a single, large rectangular block of Feta cheese right on top.",
+                    "Do not crumble the cheese; let the guests break it themselves.",
+                    "Drizzle generously with high-quality extra virgin olive oil.",
+                    "Sprinkle a large pinch of dried Greek oregano over the cheese and veggies.",
+                    "Add a splash of red wine vinegar if you prefer extra tang.",
+                    "Serve with crusty bread to soak up the juices at the bottom of the bowl."
+                ]
+            },
+            {
+                id: 14,
+                title: "Beef Stroganoff",
+                author: "Javed Iqbal",
+                time: "40 mins",
+                category: "Main Course",
+                image: "https://images.unsplash.com/photo-1534939561126-755ecf158d9d?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Sirloin Beef strips", "Mushrooms", "Sour Cream", "Beef Broth", "Egg Noodles", "Dijon Mustard"],
+                steps: [
+                    "Season beef strips with salt and pepper. Sear quickly in a hot pan; remove and set aside.",
+                    "In the same pan, sauté sliced mushrooms and onions until golden brown.",
+                    "Add a bit of flour to the pan and cook for 1 minute to create a roux.",
+                    "Slowly whisk in beef broth and a teaspoon of Dijon mustard.",
+                    "Simmer the sauce until it thickens into a glossy gravy.",
+                    "Lower the heat and stir in the sour cream—do not let it boil or it will curdle.",
+                    "Add the beef strips back into the pan along with their resting juices.",
+                    "Boil egg noodles in salted water until al dente.",
+                    "Toss the noodles with a bit of butter and parsley.",
+                    "Ladle the creamy beef mixture over the noodles and serve immediately."
+                ]
+            },
+            {
+                id: 15,
+                title: "Classic Eggs Benedict",
+                author: "Javed Iqbal",
+                time: "30 mins",
+                category: "Breakfast",
+                image: "https://images.unsplash.com/photo-1600335895229-6e75511892c8?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Eggs", "English Muffins", "Canadian Bacon", "Butter", "Lemon Juice", "Vinegar"],
+                steps: [
+                    "For Hollandaise: Whisk egg yolks and lemon juice in a bowl over a water bath.",
+                    "Slowly drizzle in melted butter while whisking vigorously until thick and creamy.",
+                    "Keep the sauce warm but off the direct heat to prevent splitting.",
+                    "Poach eggs: Bring water and vinegar to a simmer; swirl to create a vortex.",
+                    "Drop eggs into the center and cook for 3 minutes for a perfectly runny yolk.",
+                    "Toast the split English muffins until golden brown.",
+                    "Sear the bacon slices in a pan until slightly crispy at the edges.",
+                    "Assemble: Place bacon on the muffin, followed by the poached egg.",
+                    "Ladle the rich Hollandaise sauce generously over the eggs.",
+                    "Garnish with a pinch of paprika or chopped chives for color."
+                ]
+            },
+            {
+                id: 16,
+                title: "Thai Green Chicken Curry",
+                author: "Javed Iqbal",
+                time: "35 mins",
+                category: "Asian",
+                image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Chicken breast", "Green Curry Paste", "Coconut Milk", "Bamboo Shoots", "Thai Basil", "Palm Sugar"],
+                steps: [
+                    "Fry green curry paste in a tablespoon of oil until the aroma fills the room.",
+                    "Crack the coconut milk by adding a small amount and stirring until oil separates.",
+                    "Add the remaining coconut milk and bring to a gentle simmer.",
+                    "Add sliced chicken pieces and cook until they turn white and tender.",
+                    "Stir in bamboo shoots, pea aubergines, and sliced red chilies.",
+                    "Season with fish sauce and palm sugar to get that classic Thai balance.",
+                    "Tear fresh Thai basil leaves and toss them in at the last second.",
+                    "The curry should be fragrant, spicy, and slightly sweet.",
+                    "Check the consistency; it should be like a thick soup, not a heavy gravy.",
+                    "Serve in a deep bowl with a side of fragrant Jasmine rice."
+                ]
+            },
+            {
+                id: 17,
+                title: "New York Cheesecake",
+                author: "Javed Iqbal",
+                time: "90 mins",
+                category: "Dessert",
+                image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Cream Cheese", "Graham Crackers", "Sugar", "Eggs", "Vanilla Extract", "Sour Cream", "Butter"],
+                steps: [
+                    "Crush crackers and mix with melted butter. Press into a springform pan firmly.",
+                    "Bake the crust for 10 minutes at 325°F to set it; let it cool.",
+                    "Beat cream cheese and sugar until completely smooth—air bubbles are the enemy.",
+                    "Add eggs one at a time on low speed, mixing just until combined.",
+                    "Stir in sour cream and vanilla extract for that signature NY tang.",
+                    "Pour filling over the crust. Wrap the outside of the pan in heavy-duty foil.",
+                    "Place the pan in a larger roasting tray filled with hot water (Water Bath).",
+                    "Bake for 75 minutes. The center should still have a slight jiggle.",
+                    "Turn off the oven and leave the door ajar for 1 hour to prevent cracking.",
+                    "Chill in the fridge for at least 8 hours before slicing with a hot knife."
+                ]
+            },
+            {
+                id: 18,
+                title: "Shrimp Scampi Pasta",
+                author: "Javed Iqbal",
+                time: "20 mins",
+                category: "Italian",
+                image: "https://images.unsplash.com/photo-1621236166138-084701e63a3c?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Large Shrimp", "Linguine", "Garlic cloves", "White Wine", "Lemon juice", "Parsley", "Red Pepper Flakes"],
+                steps: [
+                    "Boil linguine in heavily salted water until 1 minute before al dente.",
+                    "Sauté minced garlic and red pepper flakes in a mix of butter and olive oil.",
+                    "Add shrimp to the pan. Cook for 2 minutes until they turn pink and opaque.",
+                    "Remove shrimp to a plate to prevent overcooking.",
+                    "Pour white wine into the pan and reduce by half while scraping the bottom.",
+                    "Add lemon juice and a splash of pasta water to create a silky sauce.",
+                    "Toss the pasta into the sauce and cook for the final minute.",
+                    "Add the shrimp back in along with a mountain of fresh chopped parsley.",
+                    "Finish with a final knob of cold butter for a restaurant-style glaze.",
+                    "Serve immediately with a lemon wedge on the side."
+                ]
+            },
+            {
+                id: 19,
+                title: "Mexican Street Corn (Elote)",
+                author: "Javed Iqbal",
+                time: "15 mins",
+                category: "Vegetarian",
+                image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Corn on the cob", "Mayonnaise", "Cotija Cheese", "Chili Powder", "Lime juice", "Cilantro"],
+                steps: [
+                    "Grill the corn cobs over high heat until they are charred on all sides.",
+                    "In a small bowl, mix mayonnaise, sour cream, and minced garlic.",
+                    "While the corn is still hot, slather it generously with the mayo mixture.",
+                    "Roll the corn in crumbled Cotija cheese until fully coated.",
+                    "Sprinkle a healthy dose of ancho chili powder over the cheese.",
+                    "Garnish with finely chopped fresh cilantro.",
+                    "Squeeze fresh lime juice over the corn right before the first bite.",
+                    "The combination of sweet corn, salty cheese, and lime is legendary.",
+                    "You can also cut the corn off the cob to serve it as 'Esquites' in a cup.",
+                    "Serve as a vibrant side dish or a standalone street-food snack."
+                ]
+            },
+            {
+                id: 20,
+                title: "Berry Smoothie Bowl",
+                author: "Javed Iqbal",
+                time: "10 mins",
+                category: "Breakfast",
+                image: "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&q=80&w=800",
+                ingredients: ["Frozen Mixed Berries", "Frozen Banana", "Almond Milk", "Granola", "Chia Seeds", "Honey"],
+                steps: [
+                    "Place frozen berries and banana slices into a high-powered blender.",
+                    "Add just enough almond milk to allow it to blend—it should be very thick.",
+                    "Add a tablespoon of honey or maple syrup for extra sweetness.",
+                    "Blend on high until the texture is like soft-serve ice cream.",
+                    "Pour the thick mixture into a wide, chilled bowl.",
+                    "Smooth the top with the back of a spoon.",
+                    "Create neat rows of toppings: granola, fresh berries, and sliced banana.",
+                    "Sprinkle chia seeds or hemp hearts for a nutritional boost.",
+                    "Drizzle a final string of honey across the entire bowl.",
+                    "Eat immediately with a spoon before it begins to melt."
+                ]
+            }
+        ];
+
+        // PAGE ROUTING LOGIC
+        function showPage(pageId) {
+            document.getElementById('home-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('add-recipe-view').style.display = 'none';
+
+            if(pageId === 'home') document.getElementById('home-view').style.display = 'block';
+            if(pageId === 'detail') document.getElementById('detail-view').style.display = 'block';
+            if(pageId === 'add') document.getElementById('add-recipe-view').style.display = 'block';
+            
+            window.scrollTo(0,0);
+        }
+
+        // GRID GENERATION
+        function initGallery() {
+            const gallery = document.getElementById('recipe-gallery');
+            gallery.innerHTML = recipeData.map(recipe => `
+                <div class="col-xl-3 col-lg-4 col-md-6 recipe-card-item">
+                    <div class="recipe-card shadow-sm" onclick="openRecipe(${recipe.id})">
+                        <div class="img-container">
+                            <img src="${recipe.image}" class="recipe-img" loading="lazy">
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag mb-2 d-inline-block">${recipe.category}</span>
+                            <h5 class="fw-bold mb-1">${recipe.title}</h5>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small class="text-muted">By ${recipe.author}</small>
+                                <small class="text-danger fw-bold">${recipe.time}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // OPEN DETAIL VIEW
+        function openRecipe(id) {
+            const r = recipeData.find(item => item.id === id);
+            if(!r) return;
+
+            document.getElementById('view-title').innerText = r.title;
+            document.getElementById('view-category').innerText = r.category;
+            document.getElementById('view-time').innerText = r.time;
+            document.getElementById('view-img').src = r.image;
+            
+            // Populate Ingredients
+            document.getElementById('view-ingredients').innerHTML = r.ingredients.map(ing => `
+                <li>${ing}</li>
+            `).join('');
+
+            // Populate Steps
+            document.getElementById('view-steps').innerHTML = r.steps.map((step, index) => `
+                <div class="step-box">
+                    <small class="text-danger fw-bold text-uppercase">Step ${index + 1}</small>
+                    <p class="mb-0 mt-1">${step}</p>
+                </div>
+            `).join('');
+
+            showPage('detail');
+        }
+
+        // SEARCH FUNCTIONALITY
+        function searchHandler() {
+            const term = document.getElementById('recipeSearch').value.toLowerCase();
+            const items = document.querySelectorAll('.recipe-card-item');
+            
+            items.forEach(item => {
+                const title = item.querySelector('h5').innerText.toLowerCase();
+                const cat = item.querySelector('.category-tag').innerText.toLowerCase();
+                if(title.includes(term) || cat.includes(term)) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        // FORM SUBMISSION MOCKUP
+        document.getElementById('submitForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert("Recipe submitted! Javed Iqbal will review it soon.");
+            showPage('home');
+        });
+
+        // App Start
+        window.onload = initGallery;
+    </script>
+</body>
+</html>
